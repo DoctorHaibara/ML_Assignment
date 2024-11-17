@@ -1,150 +1,109 @@
-![logo](./docs/_static/logo2.0.png)
----
+# Replicating the BSARec Paper using ReChorus: Sun Yat-sen University Artificial Intelligence College Machine Learning Course Project
 
-![PyPI - Python Version](https://img.shields.io/badge/pyhton-3.10-blue) 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![GitHub repo size](https://img.shields.io/github/repo-size/THUwangcy/ReChorus) 
-[![arXiv](https://img.shields.io/badge/arXiv-ReChorus-%23B21B1B)](https://arxiv.org/abs/2405.18058)
+This repository contains the implementation of the BSARec model, a final project for the Machine Learning course at Sun Yat-sen University's Artificial Intelligence College. This project leverages the ReChorus 2.0 framework ([https://github.com/THUwangcy/ReChorus/](https://github.com/THUwangcy/ReChorus/)) for its modularity and flexibility in replicating the BSARec algorithm.
 
 
-ReChorus2.0 is a modular and task-flexible PyTorch library for recommendation, especially for research purpose. It aims to provide researchers a flexible framework to implement various recommendation tasks, compare different algorithms, and adapt to diverse and highly-customized data inputs. We hope ReChorus2.0 can serve as a more convinient and user-friendly tool for researchers, so as to form a "Chorus" of recommendation tasks and algorithms.
+## Project Overview: Replicating BSARec
 
-The previous version of ReChorus can be found at [ReChorus1.0](https://github.com/THUwangcy/ReChorus/tree/ReChorus1.0)
+This project focuses on replicating the **BSARec** model, as described in:
 
-## What's New in ReChorus2.0:
-
-- **New Tasks**: Newly supporting the context-aware top-k recommendation and CTR prediction task. Newly supporting the Impression-based re-ranking task.
-- **New Models**: Adding Context-aware Recommenders and Impression-based Re-ranking Models. Listed below.
-- **New dataset format**: Supporting various contextual feature input. Customizing candidate item lists in training and evaluation. Supporting variable length positive and negative samples.
-- **Task Flexible**: Each model can serve for different tasks, and task switching is conveniently achieved by altering *model mode*.
-  
-
-This framework is especially suitable for researchers to choose or implement desired experimental settings, and compare algorithms under the same setting. The characteristics of our framework can be summarized as follows:
-
-- **Modular**: primary functions modularized into distinct components: runner, model, and reader, facilitating code comprehension and integration of new features.
-  
-- **Swift**: concentrate on your model design ***in a single file*** and implement new models quickly.
-
-- **Efficient**: multi-thread batch preparation, special implementations for the evaluation, and around 90% GPU utilization during training for deep models.
-
-- **Flexible**: implement new readers or runners for different datasets and experimental settings, and each model can be assigned with specific helpers.
-
-## Structure
-
-Generally, ReChorus decomposes the whole process into three modules:
-
-- [Reader](https://github.com/THUwangcy/ReChorus/tree/master/src/helpers/BaseReader.py): read dataset into DataFrame and append necessary information to each instance
-- [Runner](https://github.com/THUwangcy/ReChorus/tree/master/src/helpers/BaseRunner.py): control the training process and model evaluation, including evaluation metrics.
-- [Model](https://github.com/THUwangcy/ReChorus/tree/master/src/models/BaseModel.py): define how to generate output (predicted labels or ranking scores) and prepare batches.
-
-![logo](./docs/_static/module_new.png)
-
-## Requirements & Getting Started
-See in the doc for [Requirements & Getting Started](https://github.com/THUwangcy/ReChorus/tree/master/docs/Getting_Started.md).
-
-## Tasks & Settings
-
-The tasks & settings are listed below
-
-<table>
-<tr><th> Tasks </th><th> Runner </th><th> Metrics </th><th> Loss Functions</th><th> Reader </th><th> BaseModel </th><th> Models</th><th> Model Modes </th></tr>
-<tr><td rowspan="3"> Top-k Recommendation </td><td rowspan="3"> BaseRunner </td><td rowspan="3"> HitRate NDCG </td><td rowspan="3"> BPR </td><td> BaseReader </td><td> BaseModel.GeneralModel </td><td> general </td><td> '' </td></tr>
-<tr><td> SeqReader </td><td> BaseModel.SequentialModel </td><td> sequential </td><td> '' </td></tr>
-<tr><td> ContextReader </td><td> BaseContextModel.ContextModel </td><td> context </td><td> 'TopK' </td></tr>
-<tr><td> CTR Prediction </td><td> CTRRunner </td><td> AUC Logloss </td><td> BPR, BCE </td><td> ContextReader </td><td> BaseContextModel.ContextCTRModel </td><td> context </td><td> 'CTR' </td></tr>
-<tr><td rowspan="4"> Impression-based Ranking </td><td rowspan="4"> ImpressionRunner </td><td rowspan="4"> HitRate NDCG MAP </td><td rowspan="4"> List-level BPR, Listnet loss, Softmax cross entropy loss, Attention rank </td><td> ImpressionReader </td><td> BaseImpressionModel.ImpressionModel </td><td> general </td><td> 'Impression' </td></tr>
-<tr><td> ImpressionSeqReader </td><td> BaseImpressionModel.ImpressionSeqModel </td><td> sequential </td><td> 'Impression' </td></tr>
-<tr><td> ImpressionReader </td><td> BaseRerankerModel.RerankModel </td><td> reranker </td><td> 'General' </td></tr>
-<tr><td> ImpressionSeqReader </td><td> BaseRerankerModel.RerankSeqModel </td><td> reranker </td><td> 'Sequential' </td></tr>
-</table>
+**[BSARec](https://arxiv.org/abs/2312.10325)**
+* **Title:** An Attentive Inductive Bias for Sequential Recommendation beyond the Self-Attention
+* **Authors:** Yehjin Shin*, Jeongwhan Choi*, Hyowon Wi, Noseong Park
+* **Conference:** AAAI 2024
 
 
-## Arguments
-See in the doc for [Main Arguments](https://github.com/THUwangcy/ReChorus/tree/master/docs/Main_Arguments.md).
+This project builds upon the foundational work of **SASRec**:
 
-## Models
-See in the doc for [Supported Models](https://github.com/THUwangcy/ReChorus/tree/master/docs/Supported_Models.md).
+**[SASRec](https://arxiv.org/abs/1808.09781)**
+* **Title:** Self-Attentive Sequential Recommendation
+* **Authors:** Wang-Cheng Kang, Julian McAuley
+* **Conference:** ICDM 2018
 
-Experimental results and corresponding configurations are shown in [Demo Script Results](https://github.com/THUwangcy/ReChorus/tree/master/docs/demo_scripts_results/README.md).
 
+## Implementation Details
 
-## Citation
+This project utilizes the **ReChorus 2.0** framework ([https://github.com/THUwangcy/ReChorus/](https://github.com/THUwangcy/ReChorus/)) for implementing the BSARec model. ReChorus provided a structured and efficient environment for development, training, and evaluation.  Its modular design facilitated the integration of the BSARec components.
 
-**If you find ReChorus is helpful to your research, please cite either of the following papers. Thanks!**
+**Specific Implementation Choices:**
+
+* **Datasets:** We used the Grocery & Gourmet Food and MovieLens datasets. The ReChorus framework's provided scripts were used to split the data into training, validation (dev), and test sets. 
+
+* **Model Architecture:** The BSARec model architecture was implemented as follows:
 
 ```
-@article{li2024rechorus2,
-  title={ReChorus2. 0: A Modular and Task-Flexible Recommendation Library},
-  author={Li, Jiayu and Li, Hanyu and He, Zhiyu and Ma, Weizhi and Sun, Peijie and Zhang, Min and Ma, Shaoping},
-  journal={arXiv preprint arXiv:2405.18058},
-  year={2024}
-}
+INFO:root:BSARec(
+  (i_embeddings): Embedding(8714, 64)
+  (p_embeddings): Embedding(21, 64)
+  (BSARecBlock): ModuleList(
+    (0): BSARecBlock(
+      (layer): BSARecLayer(
+        (filter_layer): FrequencyLayer(
+          (out_dropout): Dropout(p=0, inplace=False)
+          (LayerNorm): LayerNorm((64,), eps=1e-12, elementwise_affine=True)
+        )
 
-@inproceedings{wang2020make,
-  title={Make it a chorus: knowledge-and time-aware item modeling for sequential recommendation},
-  author={Wang, Chenyang and Zhang, Min and Ma, Weizhi and Liu, Yiqun and Ma, Shaoping},
-  booktitle={Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval},
-  pages={109--118},
-  year={2020}
-}
-@article{王晨阳2021rechorus,
-  title={ReChorus: 一个综合, 高效, 易扩展的轻量级推荐算法框架},
-  author={王晨阳 and 任一 and 马为之 and 张敏 and 刘奕群 and 马少平},
-  journal={软件学报},
-  volume={33},
-  number={4},
-  pages={0--0},
-  year={2021}
-}
+        (attention_layer): MultiHeadAttention(
+          (q_linear): Linear(in_features=64, out_features=64, bias=True)
+          (k_linear): Linear(in_features=64, out_features=64, bias=True)
+          (v_linear): Linear(in_features=64, out_features=64, bias=True)
+        )
+      )
+      (layer_norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0, inplace=False)
+      (linear1): Linear(in_features=64, out_features=64, bias=True)
+      (linear2): Linear(in_features=64, out_features=64, bias=True)
+      (layer_norm2): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+      (dropout2): Dropout(p=0, inplace=False)
+    )
+  )
+)
 ```
 
-This is also our public implementation for the following papers (codes and datasets to reproduce the results can be found at corresponding branch):
+Key architectural parameters include:
+
+* **Embedding Dimension:** 64
+* **Number of Attention Heads:** 4
+* **Number of Layers (BSARecBlocks):** 1
+* **Activation Function:** GeLU
+* **Dropout Rate:** 0
 
 
-- *Chenyang Wang, Min Zhang, Weizhi Ma, Yiqun Liu, and Shaoping Ma. [Make It a Chorus: Knowledge- and Time-aware Item Modeling for Sequential Recommendation](http://www.thuir.cn/group/~mzhang/publications/SIGIR2020Wangcy.pdf). In SIGIR'20.*
+* **Training:** We trained the model using the Adam optimizer with a learning rate of 0.001 and a batch size of 256.  A total of 200 epochs were used.  No explicit hyperparameter tuning was performed beyond those specified in the configuration file.  L2 regularization was applied with a weight decay of 1e-06.  Early stopping was implemented with a patience of 10 epochs.
 
-```bash
-git clone -b SIGIR20 https://github.com/THUwangcy/ReChorus.git
-```
 
-- *Chenyang Wang, Weizhi Ma, Min Zhang, Chong Chen, Yiqun Liu, and Shaoping Ma. [Towards Dynamic User Intention: Temporal Evolutionary Effects of Item Relations in Sequential Recommendation](https://chenchongthu.github.io/files/TOIS-KDA-wcy.pdf). In TOIS'21.*
+## Results
 
-```bash
-git clone -b TOIS21 https://github.com/THUwangcy/ReChorus.git
-```
+We present the results of our replicated BSARec model and, for comparison, the ReChorus implementation of SASRec on both datasets:
 
-- *Chenyang Wang, Weizhi Ma, Chong, Chen, Min Zhang, Yiqun Liu, and Shaoping Ma. [Sequential Recommendation with Multiple Contrast Signals](https://dl.acm.org/doi/pdf/10.1145/3522673). In TOIS'22.*
+**Grocery & Gourmet Food:**
 
-```bash
-git clone -b TOIS22 https://github.com/THUwangcy/ReChorus.git
-```
+| Metric      | BSARec (Our Replication) | SASRec (ReChorus) |
+|--------------|--------------------------|--------------------|
+| HR@5         | 0.3567                    | 0.3728             |
+| NDCG@5       | 0.2624                    | 0.2725             |
+| HR@10        | 0.4424                    | 0.4660             |
+| NDCG@10      | 0.2900                    | 0.3026             |
+| HR@20        | 0.5507                    | 0.5743             |
+| NDCG@20      | 0.3173                    | 0.3298             |
+| HR@50        | 0.7642                    | 0.7799             |
+| NDCG@50      | 0.3594                    | 0.3705             |
 
-- *Chenyang Wang, Zhefan Wang, Yankai Liu, Yang Ge, Weizhi Ma, Min Zhang, Yiqun Liu, Junlan Feng, Chao Deng, and Shaoping Ma. [Target Interest Distillation for Multi-Interest Recommendation](). In CIKM'22.*
 
-```bash
-git clone -b CIKM22 https://github.com/THUwangcy/ReChorus.git
-```
+**MovieLens:**
 
-## Contact
+| Metric      | BSARec (Our Replication) | SASRec (ReChorus) |
+|--------------|--------------------------|--------------------|
+| HR@5         | 0.5327                    | 0.5254             |
+| NDCG@5       | 0.3962                    | 0.3898             |
+| HR@10        | 0.6691                    | 0.6712             |
+| NDCG@10      | 0.4404                    | 0.4371             |
+| HR@20        | 0.8045                    | 0.8055             |
+| NDCG@20      | 0.4747                    | 0.4711             |
+| HR@50        | 0.9579                    | 0.9492             |
+| NDCG@50      | 0.5055                    | 0.5000             |
 
-**ReChorus 1.0**: Chenyang Wang (THUwangcy@gmail.com)
 
-**ReChorus 2.0**: Jiayu Li (lijiayu997@gmail.com), Hanyu Li (l-hy12@outlook.com)
+## Discussion
 
-<!-- MARKDOWN LINKS & IMAGES -->
-
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=flat-square
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=flat-square
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=flat-square
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=flat-square
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=flat-square
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
+Our replication of the BSARec model, implemented within the ReChorus framework, demonstrates performance comparable to the ReChorus baseline implementation of SASRec across both the Grocery & Gourmet Food and MovieLens datasets. This indicates a successful replication of the BSARec algorithm, achieving similar levels of HR@K and NDCG@K scores as the established ReChorus baseline.
