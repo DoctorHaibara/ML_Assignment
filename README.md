@@ -1,4 +1,4 @@
-# Replicating the BSARec Paper using ReChorus: Sun Yat-sen University Artificial Intelligence College Machine Learning Course Project
+# Sun Yat-sen University Artificial Intelligence College Machine Learning Course Project
 
 This repository contains the implementation of the BSARec model, a final project for the Machine Learning course at Sun Yat-sen University's Artificial Intelligence College. This project leverages the ReChorus 2.0 framework ([https://github.com/THUwangcy/ReChorus/](https://github.com/THUwangcy/ReChorus/)) for its modularity and flexibility in replicating the BSARec algorithm.
 
