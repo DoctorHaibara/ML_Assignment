@@ -9,4 +9,6 @@ doc/
 model/
 search.py
 log/
-data/
+*.ipynb
+*.pkl
+*.json
