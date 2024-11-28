@@ -27,7 +27,7 @@ This project utilizes the **ReChorus 2.0** framework ([https://github.com/THUwan
 
 **Specific Implementation Choices:**
 
-* **Datasets:** We used the Grocery & Gourmet Food and MovieLens datasets. The ReChorus framework's provided scripts were used to split the data into training, validation (dev), and test sets. 
+* **Datasets:** We used the Grocery & Gourmet Food, MovieLens, and Beauty datasets. The ReChorus framework's provided scripts were used to split the data into training, validation (dev), and test sets. 
 
 * **Model Architecture:** The BSARec model architecture was implemented as follows:
 
@@ -74,7 +74,7 @@ Key architectural parameters include:
 
 ## Results
 
-We present the results of our replicated BSARec model and, for comparison, the ReChorus implementation of SASRec on both datasets:
+We present the results of our replicated BSARec model and, for comparison, the ReChorus implementation of SASRec on the Grocery & Gourmet Food, MovieLens, and Beauty datasets:
 
 **Grocery & Gourmet Food:**
 
@@ -104,6 +104,20 @@ We present the results of our replicated BSARec model and, for comparison, the R
 | NDCG@50      | 0.5055                    | 0.5000             |
 
 
+**Beauty:**
+
+| Metric      | BSARec (Our Replication) | SASRec (ReChorus) |
+|--------------|--------------------------|--------------------|
+| HR@5         | 0.3285                    | 0.3457             |
+| NDCG@5       | 0.2456                    | 0.2565             |
+| HR@10        | 0.4236                    | 0.4436             |
+| NDCG@10      | 0.2762                    | 0.2882             |
+| HR@20        | 0.5401                    | 0.5612             |
+| NDCG@20      | 0.3056                    | 0.3178             |
+| HR@50        | 0.7623                    | 0.7788             |
+| NDCG@50      | 0.3493                    | 0.3606             |
+
+
 ## Discussion
 
-Our replication of the BSARec model, implemented within the ReChorus framework, demonstrates performance comparable to the ReChorus baseline implementation of SASRec across both the Grocery & Gourmet Food and MovieLens datasets. This indicates a successful replication of the BSARec algorithm, achieving similar levels of HR@K and NDCG@K scores as the established ReChorus baseline.
+Our replication of the BSARec model, implemented within the ReChorus framework, demonstrates performance comparable to the ReChorus baseline implementation of SASRec across the Grocery & Gourmet Food, MovieLens, and Beauty datasets.  While minor variations in performance are observed, the overall results indicate a successful replication of the BSARec algorithm, achieving similar levels of HR@K and NDCG@K scores as the established ReChorus baseline.  The results on the Beauty dataset further support this conclusion, showing competitive performance between BSARec and SASRec.
