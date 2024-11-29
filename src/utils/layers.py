@@ -204,6 +204,113 @@ class BSARecBlock(nn.Module):
 		output = self.linear2(output)
 		output = self.layer_norm2(self.dropout2(output) + context)
 		return output
+	
+		
+class LocalRNN(nn.Module):
+    def __init__(self, input_dim, output_dim, rnn_type, ksize, dropout):
+        super(LocalRNN, self).__init__()
+        """
+        LocalRNN structure
+        """
+        self.ksize = ksize
+        if rnn_type == 'GRU':
+            self.rnn = nn.GRU(output_dim, output_dim, batch_first=True)
+        elif rnn_type == 'LSTM':
+            self.rnn = nn.LSTM(output_dim, output_dim, batch_first=True)
+        else:
+            self.rnn = nn.RNN(output_dim, output_dim, batch_first=True)
+
+        self.output = nn.Sequential(nn.Linear(output_dim, output_dim), nn.ReLU())
+
+        # To speed up
+        idx = [i for j in range(self.ksize-1,10000,1) for i in range(j-(self.ksize-1),j+1,1)]
+        self.select_index = torch.LongTensor(idx).cuda()
+        self.zeros = torch.zeros((self.ksize-1, input_dim)).cuda()
+
+    def forward(self, x):
+        nbatches, l, input_dim = x.shape
+        x = self.get_K(x) # b x seq_len x ksize x d_model
+        batch, l, ksize, d_model = x.shape
+        h = self.rnn(x.view(-1, self.ksize, d_model))[0][:,-1,:]
+        return h.view(batch, l, d_model)
+
+    def get_K(self, x):
+        batch_size, l, d_model = x.shape
+        zeros = self.zeros.unsqueeze(0).repeat(batch_size, 1, 1)
+        x = torch.cat((zeros, x), dim=1)
+        key = torch.index_select(x, 1, self.select_index[:self.ksize*l])
+        key = key.reshape(batch_size, l, self.ksize, -1)
+        return key
+
+
+class LocalRNNLayer(nn.Module):
+	"Encoder is made up of attconv and feed forward (defined below)"
+	def __init__(self, input_dim, output_dim, rnn_type, ksize, dropout):
+		super(LocalRNNLayer, self).__init__()
+		self.local_rnn = LocalRNN(input_dim, output_dim, rnn_type, ksize, dropout)
+        #self.connection = SublayerConnection(output_dim, dropout)
+		self.norm = nn.LayerNorm(output_dim)
+		self.dropout = nn.Dropout(dropout)
+
+
+	def forward(self, x):
+		"Follow Figure 1 (left) for connections."
+		return x + self.dropout(self.local_rnn(self.norm(x)))
+
+class BSARecLayer(nn.Module):
+	def __init__(self, d_model, n_heads, alpha, c,  dropout=0, kq_same=False):
+		super().__init__()
+        # 初始化频率层和多头注意力层
+		self.filter_layer = FrequencyLayer(dropout, d_model, c)
+		self.attention_layer = MultiHeadAttention(d_model, n_heads, kq_same=kq_same)
+        # 设置alpha参数
+		self.alpha = alpha
+
+	def forward(self, input_tensor, attention_mask):
+        # 通过频率层
+		dsp = self.filter_layer(input_tensor)
+        # 通过多头注意力层
+		gsp = self.attention_layer(input_tensor, input_tensor, input_tensor, attention_mask)
+        # 组合频率层和多头注意力层的输出
+		hidden_states = self.alpha * dsp + (1 - self.alpha) * gsp
+
+		return hidden_states
+
+class BSARecBlock(nn.Module):
+	def __init__(self, d_model, d_ff, n_heads, alpha, c,  dropout=0, kq_same=False):
+		super(BSARecBlock, self).__init__()
+        # 初始化BSARec层和前馈层
+		self.layer = BSARecLayer(d_model, n_heads, alpha, c,  dropout, kq_same)
+
+		self.layer_norm1 = nn.LayerNorm(d_model)
+		self.dropout1 = nn.Dropout(dropout)
+
+		self.linear1 = nn.Linear(d_model, d_ff)
+		self.linear2 = nn.Linear(d_ff, d_model)
+
+		self.layer_norm2 = nn.LayerNorm(d_model)
+		self.dropout2 = nn.Dropout(dropout)
+
+	def gelu(self, x):
+		"""Implementation of the gelu activation function.
+
+        For information: OpenAI GPT's gelu is slightly different (and gives slightly different results)::
+
+            0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))
+
+        Also see https://arxiv.org/abs/1606.08415
+        """
+		return x * 0.5 * (1.0 + torch.erf(x / math.sqrt(2.0)))
+
+
+	def forward(self, seq, mask=None):
+		context = self.layer(seq, mask)
+		context = self.layer_norm1(self.dropout1(context) + seq)
+		output = self.linear1(context)
+		output = self.gelu(output)
+		output = self.linear2(output)
+		output = self.layer_norm2(self.dropout2(output) + context)
+		return output
 		
 class MultiHeadTargetAttention(nn.Module):
     '''
