@@ -257,30 +257,32 @@ class LocalRNNLayer(nn.Module):
 		"Follow Figure 1 (left) for connections."
 		return x + self.dropout(self.local_rnn(self.norm(x)))
 
-class BSARecLayer(nn.Module):
-	def __init__(self, d_model, n_heads, alpha, c,  dropout=0, kq_same=False):
+class RBSARecLayer(nn.Module):
+	def __init__(self, d_model, n_heads, alpha, c, rnn_type, ksize=6 , dropout=0,  kq_same=False):
 		super().__init__()
         # 初始化频率层和多头注意力层
 		self.filter_layer = FrequencyLayer(dropout, d_model, c)
+		# 初始化RNN
+		self.rnn = LocalRNNLayer(d_model, d_model, rnn_type, ksize, dropout)
 		self.attention_layer = MultiHeadAttention(d_model, n_heads, kq_same=kq_same)
         # 设置alpha参数
 		self.alpha = alpha
 
 	def forward(self, input_tensor, attention_mask):
         # 通过频率层
-		dsp = self.filter_layer(input_tensor)
+		filter = self.filter_layer(input_tensor)
+		rnn = self.rnn(input_tensor)
+		hidden_states = self.alpha * filter + (1 - self.alpha) * rnn
         # 通过多头注意力层
-		gsp = self.attention_layer(input_tensor, input_tensor, input_tensor, attention_mask)
-        # 组合频率层和多头注意力层的输出
-		hidden_states = self.alpha * dsp + (1 - self.alpha) * gsp
-
+		hidden_states = self.attention_layer(hidden_states, hidden_states, hidden_states, attention_mask)
+        
 		return hidden_states
 
-class BSARecBlock(nn.Module):
-	def __init__(self, d_model, d_ff, n_heads, alpha, c,  dropout=0, kq_same=False):
-		super(BSARecBlock, self).__init__()
+class RBSARecBlock(nn.Module):
+	def __init__(self, d_model, d_ff, n_heads, alpha, c,  rnn_type,ksize,dropout=0, kq_same=False):
+		super(RBSARecBlock, self).__init__()
         # 初始化BSARec层和前馈层
-		self.layer = BSARecLayer(d_model, n_heads, alpha, c,  dropout, kq_same)
+		self.layer = RBSARecLayer(d_model, n_heads, alpha, c, rnn_type ,ksize, dropout, kq_same)
 
 		self.layer_norm1 = nn.LayerNorm(d_model)
 		self.dropout1 = nn.Dropout(dropout)
@@ -311,7 +313,7 @@ class BSARecBlock(nn.Module):
 		output = self.linear2(output)
 		output = self.layer_norm2(self.dropout2(output) + context)
 		return output
-		
+	
 class MultiHeadTargetAttention(nn.Module):
     '''
     Reference: FuxiCTR, https://github.com/reczoo/FuxiCTR/blob/v2.0.1/fuxictr/pytorch/layers/attentions/target_attention.py

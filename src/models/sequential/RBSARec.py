@@ -40,13 +40,10 @@ class RBSARecBase(object):
         self.i_embeddings = nn.Embedding(self.item_num, self.emb_size)
         self.p_embeddings = nn.Embedding(self.max_his + 1, self.emb_size)
 
-        self.rnn = layers.LocalRNNLayer(
-                input_dim=self.emb_size, output_dim=self.emb_size, rnn_type=self.rnn_type, ksize=6, dropout=self.dropout)
-
-        # 定义BSARecBlock
-        self.BSARecBlock = nn.ModuleList([
-            layers.BSARecBlock(d_model=self.emb_size, d_ff=self.emb_size, n_heads=self.num_heads,
-                                    alpha=self.alpha, c=self.c, dropout=self.dropout, kq_same=False)
+        # 定义RBSARecBlock
+        self.RBSARecBlock = nn.ModuleList([
+            layers.RBSARecBlock(d_model=self.emb_size, d_ff=self.emb_size, n_heads=self.num_heads,
+                                    alpha=self.alpha, c=self.c, rnn_type=self.rnn_type,ksize=6, dropout=self.dropout, kq_same=False)
             for _ in range(self.num_layers)
         ])
 
@@ -68,13 +65,11 @@ class RBSARecBase(object):
         # pos_vectors = self.p_embeddings(position)
         # his_vectors = his_vectors + pos_vectors
 
-        # RNN
-        self.rnn(his_vectors)
 
         # 自注意力机制
         causality_mask = np.tril(np.ones((1, 1, seq_len, seq_len), dtype=np.int))
         attn_mask = torch.from_numpy(causality_mask).to(self.device)
-        for block in self.BSARecBlock:
+        for block in self.RBSARecBlock:
             his_vectors = block(his_vectors, attn_mask)
 
         his_vectors = his_vectors * valid_his[:, :, None].float()
